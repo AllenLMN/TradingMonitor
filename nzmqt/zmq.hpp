@@ -603,8 +603,9 @@ namespace zmq
         inline void connect (const char *addr_)
         {
             int rc = zmq_connect (ptr, addr_);
-            if (rc != 0)
-                throw error_t ();
+//            zmq_has(
+//            if (rc != 0)
+//                throw error_t ();
         }
 
         inline void disconnect(std::string const& addr)
@@ -614,9 +615,12 @@ namespace zmq
 
         inline void disconnect (const char *addr_)
         {
-            int rc = zmq_disconnect (ptr, addr_);
-            if (rc != 0)
-                throw error_t ();
+
+                int rc = zmq_disconnect (ptr, addr_);
+                if (rc != 0)
+                    throw error_t ();
+
+
         }
 
         inline bool connected() const ZMQ_NOTHROW

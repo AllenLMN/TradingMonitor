@@ -29,22 +29,32 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     qcustomplot.cpp \
-    receive.cpp \
     sent.cpp \
-    mytracer.cpp
+    mytracer.cpp \
+    SnapshotReceive.cpp \
+    orderreceive.cpp \
+    set.cpp
 
 HEADERS += \
         mainwindow.h \
     market_snapshot.h \
     define.h \
     qcustomplot.h \
-    receive.h \
     sent.h \
     market_snapshot.h \
-    mytracer.h
+    mytracer.h \
+    order.h \
+    order_action.h \
+    order_side.h \
+    order_status.h \
+    offset.h \
+    orderreceive.h \
+    snapshotreceive.h \
+    set.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    set.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/./ -llibzmq
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/./ -llibzmqd

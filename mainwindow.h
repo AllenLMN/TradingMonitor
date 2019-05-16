@@ -2,15 +2,16 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "receive.h"
+#include "snapshotreceive.h"
 
 #include <QList>
 #include <QDateTime>
 #include "sent.h"
 #include <QThread>
 #include "qcustomplot.h"
-
+#include "orderreceive.h"
 #include "mytracer.h"
+#include "set.h"
 namespace Ui {
 class MainWindow;
 }
@@ -22,12 +23,20 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    receive *recmq;
-    QThread *recthread;
+    static MainWindow* s_instance;
+
+    static MainWindow* instance(){
+        return s_instance;
+    }
+    SnapshotReceive *SnapshotRecmq;
+//    QThread *SnapshotRecthread;
     sent *sentmq;
+    OrderReceive *OrderRecmq;
+//    QThread *OrderRecthread;
 //     QThread *sentthread;
-
-
+Set *messageboxset;
+QSettings* m_userSettings = nullptr; ///< 用户设置
+QString ip ;int SendPort;int SnapshotPort;int OrderPort;
 private:
     Ui::MainWindow *ui;
 
@@ -39,6 +48,7 @@ private:
 
 public slots:
     void showmessage(QString strat,QDateTime timer,double mean,double down,double stop_down,double up,double stop_up ,double mid);
+    void showmessage(QString contract,QDateTime timer,int side);
 
 
     void sendData(QString strat,QString modifyType,QString modify);
@@ -48,22 +58,30 @@ private slots:
     void on_comboBox_activated(int index);
  void mouseWheel(QWheelEvent * event);
   void mouseDoubleClick(QMouseEvent*);
-  void mouseMove(QMouseEvent*);
+  void mousePress(QMouseEvent*);
   void on_checkBox_clicked(bool checked);
+
+  void on_actionconnect_triggered();
+
+  void on_actionDisconnect_triggered();
+
+  void on_actionClear_triggered();
+void acceptIpPort(QString ip ,int SendPort,int SnapshotPort,int OrderPort);
+void on_pushButton_2_clicked();
 
 protected:
     void resizeEvent(QResizeEvent *event);
 void closeEvent( QCloseEvent * event );
 private:
+bool isclear=false;
+bool isdisconnect=false;
 bool zoom=false;
     QStringList m_stratmodel;
-    QMap<QString,QVector<QDateTime>>  m_timerList;
-//QList<AxisTag *> mtagList0;
-//QList<AxisTag *> mtagList1;
-//QList<AxisTag *> mtagList2;
-//QList<AxisTag *> mtagList3;
-//QList<AxisTag *> mtagList4;
-//QList<AxisTag *> mtagList5;
+    QMap<QString,QMap<QDateTime,QDateTime>>  m_timerList;
+    QMap<QString,QDateTime>  m_timerfirstList;
+    QMap<QString,QDateTime>  m_timerlastList;
+     QMap<QString,QDateTime>  orderbuymap;
+       QMap<QString,QDateTime>  ordersellmap;
     QList<myTracer *> mytracerList0;
     QList<myTracer *> mytracerList1;
     QList<myTracer *> mytracerList2;

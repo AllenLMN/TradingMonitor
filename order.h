@@ -8,12 +8,16 @@
 #include "offset.h"
 
 #include <stdio.h>
-#include <sys/time.h>
+//#include <sys/time.h>
 #include <fstream>
-
+//#pragma pack(8)
+struct timeval3 {
+        long long   tv_sec;         /* seconds */
+        long  long   tv_usec;        /* and microseconds */
+};
 struct Order {
-  timeval shot_time;
-  timeval send_time;
+  timeval3 shot_time;
+  timeval3 send_time;
   char contract[MAX_CONTRACT_LENGTH];
   double price;
   int size;
@@ -31,7 +35,7 @@ struct Order {
     snprintf(tbd, sizeof(tbd), "%s", "null");
   }
 
-  bool Valid() {
+  bool Valid() const {
     if (status == OrderStatus::SubmitNew || status == OrderStatus::New) {
       return true;
     }
@@ -60,5 +64,5 @@ struct Order {
       fprintf(stream, " %lf@%d %d %s %s %s %s %s %s\n", price, size, traded_size, OrderSide::ToString(side), order_ref, OrderAction::ToString(action), OrderStatus::ToString(status), Offset::ToString(offset), tbd);
   }
 };
-
+//#pragma pack()
 #endif  //  ORDER_H_
