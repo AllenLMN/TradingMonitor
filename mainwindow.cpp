@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     messageboxset=new Set();
     messageboxset->setdefault(ip,SendPort,SnapshotPort,OrderPort);
     connect(messageboxset,SIGNAL(acceptIpPort(QString,int,int,int)),this,SLOT(acceptIpPort(QString,int,int,int)));
-       connect(SnapshotRecmq,SIGNAL(receivemessage(QString,QDateTime,double,double,double,double,double,double)),this,SLOT(showmessage(QString,QDateTime,double,double,double,double,double,double)),Qt::QueuedConnection);
+       connect(SnapshotRecmq,SIGNAL(receivemessage(QString,QDateTime,double,double,double,double,double,double,double,double)),this,SLOT(showmessage(QString,QDateTime,double,double,double,double,double,double,double,double)),Qt::QueuedConnection);
        connect(OrderRecmq,SIGNAL(receivemessage(QString,QDateTime,int)),this,SLOT(showmessage(QString,QDateTime,int)),Qt::QueuedConnection);
     sentmq=new sent();
     ui->pushButton->setEnabled(false);
@@ -41,13 +41,15 @@ MainWindow::~MainWindow()
     this->deleteLater();
     delete ui;
 }
-void MainWindow::showmessage(QString strat,QDateTime timer,double mean,double down,double stop_down,double up,double stop_up ,double mid){
+void MainWindow::showmessage(QString strat,QDateTime timer,double mean,double down,double stop_down,double up,double stop_up ,double mid,double mean_up,double mean_down){
 
     if(!isclear){
         if(ui->comboBox->findText(strat)==-1)
         {
 
             QCustomPlot *plot=new QCustomPlot();
+            plot->addGraph();
+            plot->addGraph();
             plot->addGraph();
             plot->addGraph();
             plot->addGraph();
@@ -89,6 +91,15 @@ void MainWindow::showmessage(QString strat,QDateTime timer,double mean,double do
             plot->graph(7)->setLineStyle(QCPGraph::lsNone);
             plot->graph(7)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssTriangleInverted, QPen(Qt::yellow, 2), QBrush(Qt::white), 10));
 
+
+            plot->graph(8)->setPen(QPen(Qt::magenta));
+            plot->graph(8)->setName("mean_up");
+            plot->graph(8)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, QPen(Qt::magenta, 1), QBrush(Qt::white), 3));
+
+            plot->graph(9)->setPen(QPen(Qt::darkMagenta));
+            plot->graph(9)->setName("mean_down");
+            plot->graph(9)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, QPen(Qt::darkMagenta, 1), QBrush(Qt::white), 3));
+
             plot->hide();
             myTracer *mytracer0;
             myTracer *mytracer1;
@@ -96,19 +107,24 @@ void MainWindow::showmessage(QString strat,QDateTime timer,double mean,double do
             myTracer *mytracer3;
             myTracer *mytracer4;
             myTracer *mytracer5;
+            myTracer *mytracer6;
+            myTracer *mytracer7;
             mytracer0=new myTracer(plot,myTracer::DataTracer);
             mytracer1=new myTracer(plot,myTracer::DataTracer);
             mytracer2=new myTracer(plot,myTracer::DataTracer);
             mytracer3=new myTracer(plot,myTracer::DataTracer);
             mytracer4=new myTracer(plot,myTracer::DataTracer);
             mytracer5=new myTracer(plot,myTracer::DataTracer);
+            mytracer6=new myTracer(plot,myTracer::DataTracer);
+            mytracer7=new myTracer(plot,myTracer::DataTracer);
             mytracerList0.append(mytracer0);
             mytracerList1.append(mytracer1);
             mytracerList2.append(mytracer2);
             mytracerList3.append(mytracer3);
             mytracerList4.append(mytracer4);
             mytracerList5.append(mytracer5);
-
+mytracerList6.append(mytracer6);
+mytracerList7.append(mytracer7);
             plot->legend->setVisible(true);
 
             plot->setParent(ui->widget);
@@ -124,6 +140,8 @@ void MainWindow::showmessage(QString strat,QDateTime timer,double mean,double do
 
         if(plots[ui->comboBox->findText(strat)]->graphCount()==0)
         {
+            plots[ui->comboBox->findText(strat)]->addGraph();
+            plots[ui->comboBox->findText(strat)]->addGraph();
             plots[ui->comboBox->findText(strat)]->addGraph();
             plots[ui->comboBox->findText(strat)]->addGraph();
             plots[ui->comboBox->findText(strat)]->addGraph();
@@ -164,6 +182,16 @@ void MainWindow::showmessage(QString strat,QDateTime timer,double mean,double do
             plots[ui->comboBox->findText(strat)]->graph(7)->setName("sell");
             plots[ui->comboBox->findText(strat)]->graph(7)->setLineStyle(QCPGraph::lsNone);
             plots[ui->comboBox->findText(strat)]->graph(7)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssTriangleInverted, QPen(Qt::yellow, 2), QBrush(Qt::white), 10));
+
+            plots[ui->comboBox->findText(strat)]->graph(8)->setName("mean_up");
+            plots[ui->comboBox->findText(strat)]->graph(8)->setLineStyle(QCPGraph::lsNone);
+            plots[ui->comboBox->findText(strat)]->graph(8)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, QPen(Qt::magenta, 1), QBrush(Qt::white), 3));
+
+            plots[ui->comboBox->findText(strat)]->graph(9)->setName("mean_down");
+            plots[ui->comboBox->findText(strat)]->graph(9)->setLineStyle(QCPGraph::lsNone);
+            plots[ui->comboBox->findText(strat)]->graph(9)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, QPen(Qt::darkMagenta, 1), QBrush(Qt::white), 3));
+
+
         }
 QMap<QDateTime,QDateTime> timerlist;
 
@@ -195,6 +223,14 @@ QMap<QDateTime,QDateTime> timerlist;
             {
                 max=mid;
             }
+            if(mean_up>max)
+            {
+                max=mean_up;
+            }
+            if(mean_down>max)
+            {
+                max=mean_down;
+            }
             if(maxList.contains(strat))
             {
                 maxList.remove(strat);
@@ -225,6 +261,14 @@ QMap<QDateTime,QDateTime> timerlist;
             if(mid<min)
             {
                 min=mid;
+            }
+            if(mean_up<min)
+            {
+                min=mean_up;
+            }
+            if(mean_down<min)
+            {
+                min=mean_down;
             }
             if(minList.contains(strat))
             {
@@ -299,6 +343,8 @@ QMap<QDateTime,QDateTime> timerlist;
             plots[ui->comboBox->findText(strat)]->graph(3)->addData(timer.toSecsSinceEpoch(),stop_up);
             plots[ui->comboBox->findText(strat)]->graph(4)->addData(timer.toSecsSinceEpoch(),mid);
             plots[ui->comboBox->findText(strat)]->graph(5)->addData(timer.toSecsSinceEpoch(),mean);
+            plots[ui->comboBox->findText(strat)]->graph(8)->addData(timer.toSecsSinceEpoch(),mean_up);
+            plots[ui->comboBox->findText(strat)]->graph(9)->addData(timer.toSecsSinceEpoch(),mean_down);
             if(zoom)
             {
                 plots[ui->comboBox->findText(strat)]->replot();
@@ -644,6 +690,8 @@ void MainWindow::mousePress(QMouseEvent* e)
                     double graph3Value = plots[ui->comboBox->currentIndex()]->graph(3)->dataMainValue(index);
                     double graph4Value = plots[ui->comboBox->currentIndex()]->graph(4)->dataMainValue(index);
                     double graph5Value = plots[ui->comboBox->currentIndex()]->graph(5)->dataMainValue(index);
+                    double graph6Value = plots[ui->comboBox->currentIndex()]->graph(8)->dataMainValue(index);
+                    double graph7Value = plots[ui->comboBox->currentIndex()]->graph(9)->dataMainValue(index);
 
                     //double graph0Value = plots[ui->comboBox->currentIndex()]->graph(0)->dataMainValue(plots[ui->comboBox->currentIndex()]->graph(0)->dataCount()-1);
 
@@ -669,12 +717,19 @@ void MainWindow::mousePress(QMouseEvent* e)
                     mytracerList3[ui->comboBox->currentIndex()]->updatePosition(m_timerList.value(ui->comboBox->currentText()).keys().at(index).toSecsSinceEpoch(),graph3Value);
                     mytracerList4[ui->comboBox->currentIndex()]->updatePosition(m_timerList.value(ui->comboBox->currentText()).keys().at(index).toSecsSinceEpoch(),graph4Value);
                     mytracerList5[ui->comboBox->currentIndex()]->updatePosition(m_timerList.value(ui->comboBox->currentText()).keys().at(index).toSecsSinceEpoch(),graph5Value);
+                    mytracerList6[ui->comboBox->currentIndex()]->updatePosition(m_timerList.value(ui->comboBox->currentText()).keys().at(index).toSecsSinceEpoch(),graph6Value);
+                    mytracerList7[ui->comboBox->currentIndex()]->updatePosition(m_timerList.value(ui->comboBox->currentText()).keys().at(index).toSecsSinceEpoch(),graph7Value);
+
+
+
                     mytracerList0[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph0Value)+")");
                     mytracerList1[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph1Value)+")");
                     mytracerList2[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph2Value)+")");
                     mytracerList3[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph3Value)+")");
                     mytracerList4[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph4Value)+")");
                     mytracerList5[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph5Value)+")");
+                    mytracerList6[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph6Value)+")");
+                    mytracerList7[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph7Value)+")");
 
                 }
 

@@ -47,7 +47,7 @@ private:
 //        AxisTag *mTag2;
 
 public slots:
-    void showmessage(QString strat,QDateTime timer,double mean,double down,double stop_down,double up,double stop_up ,double mid);
+    void showmessage(QString strat,QDateTime timer,double mean,double down,double stop_down,double up,double stop_up ,double mid,double mean_up,double mean_dow);
     void showmessage(QString contract,QDateTime timer,int side);
 
 
@@ -88,6 +88,8 @@ bool zoom=false;
     QList<myTracer *> mytracerList3;
     QList<myTracer *> mytracerList4;
     QList<myTracer *> mytracerList5;
+    QList<myTracer *> mytracerList6;
+    QList<myTracer *> mytracerList7;
     QList<QCustomPlot *> plots;
     QMap<QString,double>  maxList;
         QMap<QString,double>  minList;

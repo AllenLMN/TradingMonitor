@@ -39,7 +39,7 @@ while(true)
         tv_sec=shot->time.tv_sec;
         tv_usec=shot->time.tv_usec;
 //qDebug()<<"tv_sec"<<tv_sec<<"tv_usec"<<tv_usec;
-        emit receivemessage(shot->ticker,QDateTime::fromTime_t(shot->time.tv_sec),shot->open_interest,shot->bids[0],shot->bids[1],shot->asks[0],shot->asks[1],shot->last_trade);
+        emit receivemessage(shot->ticker,QDateTime::fromTime_t(shot->time.tv_sec),shot->open_interest,shot->bids[0],shot->bids[1],shot->asks[0],shot->asks[1],shot->last_trade,shot->bids[2],shot->asks[2]);
 //
 }
 //        m_mutex.lock();

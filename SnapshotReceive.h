@@ -22,7 +22,7 @@ public:
     void resume();
         bool stopped=false;
 signals:
- void receivemessage(QString strat,QDateTime timer,double mean,double down,double stop_down,double up,double stop_up ,double mid);
+ void receivemessage(QString strat,QDateTime timer,double mean,double down,double stop_down,double up,double stop_up ,double mid,double mean_up,double mean_down);
 public slots:
       void run();
       void closereceive();
