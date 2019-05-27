@@ -17,7 +17,7 @@ public:
     zmq::context_t *context;
     zmq::socket_t *sock;
 signals:
- void receivemessage(QString strat,QDateTime timer,double down,double stop_down,double up,double stop_up ,double mid);
+ void receivemessage(QString strat,QDateTime timer,double mean,double down,double stop_down,double up,double stop_up ,double mid);
 public slots:
       void run();
       void close();

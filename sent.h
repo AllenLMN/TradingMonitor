@@ -17,33 +17,11 @@ public:
 signals:
 
 public slots:
-    void run();
+    void run(QString m_strat,QString m_modifyType,QString m_modify);
        void close();
-    void setStrat(QString strat){
-        m_strat=strat;
-    }
-    void setModifyType(QString modifyType){
-        m_modifyType=modifyType;
-    }
-    void setModify(QString modify){
-        m_modify=modify;
-    }
-    QString getStrat()
-    {
-        return m_strat;
-    }
-    QString getModifyType()
-    {
-        return m_modifyType;
-    }
-    QString getModify()
-    {
-        return m_modify;
-    }
-private:
-    QString m_strat;
-    QString m_modifyType;
-    QString m_modify;
+
+
+
 };
 
 #endif // SENT_H

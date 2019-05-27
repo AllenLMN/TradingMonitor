@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>TradingMonitor</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -64,6 +64,11 @@
       <item>
        <property name="text">
         <string>stop_down</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>mean</string>
        </property>
       </item>
      </widget>

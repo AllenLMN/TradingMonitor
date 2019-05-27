@@ -30,7 +30,8 @@ SOURCES += \
         mainwindow.cpp \
     qcustomplot.cpp \
     receive.cpp \
-    sent.cpp
+    sent.cpp \
+    mytracer.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -39,7 +40,8 @@ HEADERS += \
     qcustomplot.h \
     receive.h \
     sent.h \
-    market_snapshot.h
+    market_snapshot.h \
+    mytracer.h
 
 FORMS += \
         mainwindow.ui

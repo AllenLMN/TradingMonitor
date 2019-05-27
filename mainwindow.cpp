@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "zmq.h"
-
+#include <QCloseEvent>
 #include "market_snapshot.h"
 #include <QDebug>
 //QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
@@ -15,16 +15,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     recthread=new  QThread();
     connect(recthread, SIGNAL(started()),recmq, SLOT(run()));
-        connect(recthread, SIGNAL(finished()), recmq, SLOT(close()));
-        connect(recmq,SIGNAL(receivemessage(QString,QDateTime,double,double,double,double,double)),this,SLOT(showmessage(QString,QDateTime,double,double,double,double,double)));
+    connect(recthread, SIGNAL(finished()), recmq, SLOT(close()));
+    connect(recmq,SIGNAL(receivemessage(QString,QDateTime,double,double,double,double,double,double)),this,SLOT(showmessage(QString,QDateTime,double,double,double,double,double,double)),Qt::QueuedConnection);
     recmq->moveToThread(recthread);
     recthread->start();
     sentmq=new sent();
 
-    sentthread=new  QThread();
-    connect(sentthread, SIGNAL(started()),sentmq, SLOT(run()));
-        connect(sentthread, SIGNAL(finished()), sentmq, SLOT(close()));
-    sentmq->moveToThread(sentthread);
+    //    sentthread=new  QThread();
+    //    connect(sentthread, SIGNAL(started()),sentmq, SLOT(run()));
+    //        connect(sentthread, SIGNAL(finished()), sentmq, SLOT(close()));
+    //    sentmq->moveToThread(sentthread);
 
 
 
@@ -33,318 +33,304 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    if (recthread)
-    {
-        if (recthread->isRunning())
-        {
-            recthread->quit();
-            recthread->wait();
-        }
-      delete recthread;
-       recthread = NULL;
-  }
-    if (recmq)
-    {
 
-        delete recmq;
-        recmq = NULL;
-    }
 
-   disconnect(sentthread, SIGNAL(started()),sentmq, SLOT(run()));
-         disconnect(sentthread, SIGNAL(finished()), sentmq, SLOT(deleteLater()));
-         if (sentthread)
-         {
-             if (sentthread->isRunning())
-             {
-                 sentthread->quit();
-                 sentthread->wait();
-             }
-           delete sentthread;
-            sentthread = NULL;
-       }
-        if (sentmq)
-        {
-            delete sentmq;
-            sentmq = NULL;
-        }
-
-//           this->deleteLater();
+    this->deleteLater();
 
     delete ui;
 }
-void MainWindow::showmessage(QString strat,QDateTime timer,double down,double stop_down,double up,double stop_up ,double mid){
-    qDebug()<<"timer"<<timer<<"strat"<<strat<<"down"<<down<<"stop_down"<<stop_down<<"up"<< up<<"stop_up" <<stop_up <<"mid"<< mid;
+void MainWindow::showmessage(QString strat,QDateTime timer,double mean,double down,double stop_down,double up,double stop_up ,double mid){
 
-       if(ui->comboBox->findText(strat)==-1)
-   {
-       ui->comboBox->addItem(strat);
-       QCustomPlot *plot=new QCustomPlot();
-       plot->addGraph();
-       plot->addGraph();
-       plot->addGraph();
-       plot->addGraph();
-       plot->addGraph();
-       plot->hide();
-       plot->legend->setVisible(true);
+    if(ui->comboBox->findText(strat)==-1)
+    {
+        ui->comboBox->addItem(strat);
+        QCustomPlot *plot=new QCustomPlot();
+        plot->addGraph();
+        plot->addGraph();
+        plot->addGraph();
+        plot->addGraph();
+        plot->addGraph();
+        plot->addGraph();
+        plot->hide();
+        myTracer *mytracer0;
+        myTracer *mytracer1;
+        myTracer *mytracer2;
+        myTracer *mytracer3;
+        myTracer *mytracer4;
+        myTracer *mytracer5;
+        mytracer0=new myTracer(plot,myTracer::DataTracer);
+        mytracer1=new myTracer(plot,myTracer::DataTracer);
+        mytracer2=new myTracer(plot,myTracer::DataTracer);
+        mytracer3=new myTracer(plot,myTracer::DataTracer);
+        mytracer4=new myTracer(plot,myTracer::DataTracer);
+        mytracer5=new myTracer(plot,myTracer::DataTracer);
+        mytracerList0.append(mytracer0);
+        mytracerList1.append(mytracer1);
+        mytracerList2.append(mytracer2);
+        mytracerList3.append(mytracer3);
+        mytracerList4.append(mytracer4);
+        mytracerList5.append(mytracer5);
+//        mytracer0->updatePosition();
+//        AxisTag *mTag0;
+//        AxisTag *mTag3;
+//        AxisTag *mTag1;
+//        AxisTag *mTag2;
+//        AxisTag *mTag4;
+//        AxisTag *mTag5;
+//        mTag0 = new AxisTag(plot->graph(0)->valueAxis());
+//        mTag0->setPen(plot->graph(0)->pen());
+//        mTag1 = new AxisTag(plot->graph(1)->valueAxis());
+//        mTag1->setPen(plot->graph(1)->pen());
+//        mTag2 = new AxisTag(plot->graph(2)->valueAxis());
+//        mTag2->setPen(plot->graph(2)->pen());
+//        mTag3 = new AxisTag(plot->graph(3)->valueAxis());
+//        mTag3->setPen(plot->graph(3)->pen());
+//        mTag4 = new AxisTag(plot->graph(4)->valueAxis());
+//        mTag4->setPen(plot->graph(4)->pen());
+//        mTag5 = new AxisTag(plot->graph(5)->valueAxis());
+//        mTag5->setPen(plot->graph(5)->pen());
+        plot->legend->setVisible(true);
+//        mtagList0.append(mTag0);
+//        mtagList1.append(mTag1);
+//        mtagList2.append(mTag2);
+//        mtagList3.append(mTag3);
+//        mtagList4.append(mTag4);
+//        mtagList5.append(mTag5);
+        plot->setParent(ui->widget);
+        plots.append(plot);
+        plot->setGeometry(0,0,ui->widget->width(),ui->widget->height());
+//        plot->axisRect()->addAxis(QCPAxis::atRight);
+//        plot->axisRect()->axis(QCPAxis::atRight, 0)->setPadding(100); // add some padding to have space for tags
+//        plot->axisRect()->axis(QCPAxis::atRight, 1)->setPadding(100); // add some padding to have space for tags
 
- plot->setParent(ui->widget);
-       plots.append(plot);
-plot->setGeometry(0,0,ui->widget->width(),ui->widget->height());
-//       for(int i=0;i<plots.count()-1;i++)
-//       {
-//           plots[i]->hide();
-//       }
-   }
-       qDebug()<<"timer.time().elapsed()/1000.0;"<<timer.time().elapsed()/1000.0;
+        connect(plot,SIGNAL(mouseWheel(QWheelEvent*)),this,SLOT(mouseWheel(QWheelEvent*)));
+        connect(plot,SIGNAL(mouseDoubleClick(QMouseEvent*)),this,SLOT(mouseDoubleClick(QMouseEvent*)));
+        connect(plot,SIGNAL(mouseMove(QMouseEvent*)),this,SLOT(mouseMove(QMouseEvent*)));
 
-plots[ui->comboBox->currentIndex()]->show();
-//QVector<double> downlist;
-//QVector<double> stop_downList;
-//QVector<double> uplist;
-//QVector<double> stop_uplist;
-//QVector<double> midlist;
-QVector<QDateTime> timerlist;
+    }
+
+
+
+
+    QVector<QDateTime> timerlist;
+
 double max=0;double min=0;
-//QVector<double> Tickerlist;
-//double Tickerlist;
-if(m_timerList.isEmpty()||m_timerList.value(strat).isEmpty()||(timer!=m_timerList.value(strat).last()))
-{
-
-          if(m_timerList.keys().contains(strat))
+    if(m_timerList.isEmpty()||m_timerList.value(strat).isEmpty()||(timer!=m_timerList.value(strat).last()))
     {
 
-                  max=maxList.value(strat);
+        if(m_timerList.keys().contains(strat))
+        {
+            if(down>max)
+                             {
+                                 max=down;
+                             }
+                             if(stop_down>max)
+                             {
+                                 max=stop_down;
+                             }
+                             if(up>max)
+                             {
+                                 max=up;
+                             }
+                             if(stop_up>max)
+                             {
+                                 max=stop_up;
+                             }
+                             if(mid>max)
+                             {
+                                 max=mid;
+                             }
+                             maxList.remove(strat);
+                              maxList.insert(strat,max);
+
+                              min=minList.value(strat);
+                             if(down<min)
+                             {
+                                 min=down;
+                             }
+                             if(stop_down<min)
+                             {
+                                 min=stop_down;
+                             }
+                             if(up<min)
+                             {
+                                 min=up;
+                             }
+                             if(stop_up<min)
+                             {
+                                 min=stop_up;
+                             }
+                             if(mid<min)
+                             {
+                                 min=mid;
+                             }
+                             minList.remove(strat);
+                              minList.insert(strat,min);
+            timerlist=m_timerList.value(strat);
+            timerlist.append(timer);
+            m_timerList.remove(strat);
+            m_timerList.insert(strat,timerlist);
 
 
-                  if(down>max)
-                  {
-                      max=down;
-                  }
-                  if(stop_down>max)
-                  {
-                      max=stop_down;
-                  }
-                  if(up>max)
-                  {
-                      max=up;
-                  }
-                  if(stop_up>max)
-                  {
-                      max=stop_up;
-                  }
-                  if(mid>max)
-                  {
-                      max=mid;
-                  }
-                  maxList.remove(strat);
-                   maxList.insert(strat,max);
+        }else
+        {
+            if(down>max)
+                         {
+                             max=down;
+                         }
+                         if(stop_down>max)
+                         {
+                             max=stop_down;
+                         }
+                         if(up>max)
+                         {
+                             max=up;
+                         }
+                         if(stop_up>max)
+                         {
+                             max=stop_up;
+                         }
+                         if(mid>max)
+                         {
+                             max=mid;
+                         }
 
-                   min=maxList.value(strat);
-                  if(down<min)
-                  {
-                      min=down;
-                  }
-                  if(stop_down<min)
-                  {
-                      min=stop_down;
-                  }
-                  if(up<min)
-                  {
-                      min=up;
-                  }
-                  if(stop_up<min)
-                  {
-                      min=stop_up;
-                  }
-                  if(mid<min)
-                  {
-                      min=mid;
-                  }
-                  minList.remove(strat);
-                   minList.insert(strat,min);
-////                  downlist=m_downList.value(strat);
-////                  downlist.append(down);
-//                  m_downList.remove(strat);
-////                   m_downList.insert(strat,downlist);
-//                m_downList.insert(strat,down);
+                          maxList.insert(strat,max);
 
-////                   stop_downList=m_stop_downList.value(strat);
-////                   stop_downList.append(stop_down);
-//                   m_stop_downList.remove(strat);
-////                    m_stop_downList.insert(strat,stop_downList);
-//                   m_stop_downList.insert(strat,stop_down);
+                          min=maxList.value(strat);
+                         if(down<min)
+                         {
+                             min=down;
+                         }
+                         if(stop_down<min)
+                         {
+                             min=stop_down;
+                         }
+                         if(up<min)
+                         {
+                             min=up;
+                         }
+                         if(stop_up<min)
+                         {
+                             min=stop_up;
+                         }
+                         if(mid<min)
+                         {
+                             min=mid;
+                         }
 
-////                    uplist=m_upList.value(strat);
-////                    uplist.append(up);
-//                    m_upList.remove(strat);
-////                     m_upList.insert(strat,uplist);
-//                    m_upList.insert(strat,up);
-
-////                     stop_uplist=m_stop_upList.value(strat);
-////                     stop_uplist.append(stop_up);
-//                     m_stop_upList.remove(strat);
-////                      m_stop_upList.insert(strat,stop_uplist);
-//                     m_stop_upList.insert(strat,stop_up);
-
-////                      midlist=m_midList.value(strat);
-////                      midlist.append(mid);
-//                      m_midList.remove(strat);
-////                       m_midList.insert(strat,midlist);
-//                      m_midList.insert(strat,mid);
+                          minList.insert(strat,min);
+            timerlist.append(timer);
+            m_timerList.insert(strat,timerlist);
 
 
-//                               Tickerlist=m_TickerList.value(strat);
-////                               Tickerlist.append(Tickerlist.last()+1);
-//                               m_TickerList.remove(strat);
-////                                m_TickerList.insert(strat,Tickerlist);
-//                               m_TickerList.insert(strat,Tickerlist+1);
+        }
+//        double graph0Value = plots[ui->comboBox->findText(strat)]->graph(0)->dataMainValue(plots[ui->comboBox->findText(strat)]->graph(0)->dataCount()-1);
+//        mtagList0[ui->comboBox->findText(strat)]->updatePosition(graph0Value);
+//        mtagList0[ui->comboBox->findText(strat)]->setText(QString::number(graph0Value, 'f', 2));
+
+//        double graph1Value = plots[ui->comboBox->findText(strat)]->graph(1)->dataMainValue(plots[ui->comboBox->findText(strat)]->graph(1)->dataCount()-1);
+//        mtagList1[ui->comboBox->findText(strat)]->updatePosition(graph1Value);
+//        mtagList1[ui->comboBox->findText(strat)]->setText(QString::number(graph1Value, 'f', 2));
+
+//        double graph2Value = plots[ui->comboBox->findText(strat)]->graph(2)->dataMainValue(plots[ui->comboBox->findText(strat)]->graph(2)->dataCount()-1);
+//        mtagList2[ui->comboBox->findText(strat)]->updatePosition(graph2Value);
+//        mtagList2[ui->comboBox->findText(strat)]->setText(QString::number(graph2Value, 'f', 2));
 
 
-                   timerlist=m_timerList.value(strat);
-                   timerlist.append(timer);
-                   m_timerList.remove(strat);
-                    m_timerList.insert(strat,timerlist);
-//                   m_timerList.insert(strat,timer.toString("yyyy-MM-dd hh:mm:ss"));
-//              }
+//        double graph3Value = plots[ui->comboBox->findText(strat)]->graph(3)->dataMainValue(plots[ui->comboBox->findText(strat)]->graph(3)->dataCount()-1);
+//        mtagList3[ui->comboBox->findText(strat)]->updatePosition(graph3Value);
+//        mtagList3[ui->comboBox->findText(strat)]->setText(QString::number(graph3Value, 'f', 2));
 
 
-    }else
-          {
-
-              if(down>max)
-              {
-                  max=down;
-              }
-              if(stop_down>max)
-              {
-                  max=stop_down;
-              }
-              if(up>max)
-              {
-                  max=up;
-              }
-              if(stop_up>max)
-              {
-                  max=stop_up;
-              }
-              if(mid>max)
-              {
-                  max=mid;
-              }
-
-               maxList.insert(strat,max);
-
-               min=maxList.value(strat);
-              if(down<min)
-              {
-                  min=down;
-              }
-              if(stop_down<min)
-              {
-                  min=stop_down;
-              }
-              if(up<min)
-              {
-                  min=up;
-              }
-              if(stop_up<min)
-              {
-                  min=stop_up;
-              }
-              if(mid<min)
-              {
-                  min=mid;
-              }
-
-               minList.insert(strat,min);
-//m_downList.insert(strat,down);
-//m_stop_downList.insert(strat,stop_down);
-//m_upList.insert(strat,up);
-//m_stop_upList.insert(strat,stop_up);
-//              downlist.append(down);
-//              m_downList.insert(strat,downlist);
-
-//              stop_downList.append(stop_down);
-//              m_stop_downList.insert(strat,stop_downList);
-
-//              uplist.append(up);
-//              m_upList.insert(strat,uplist);
-
-//              stop_uplist.append(stop_up);
-//              m_stop_upList.insert(strat,stop_uplist);
-
-//              midlist.append(mid);
-//              m_midList.insert(strat,midlist);
+//        double graph4Value = plots[ui->comboBox->findText(strat)]->graph(4)->dataMainValue(plots[ui->comboBox->findText(strat)]->graph(4)->dataCount()-1);
+//        mtagList4[ui->comboBox->findText(strat)]->updatePosition(graph4Value);
+//        mtagList4[ui->comboBox->findText(strat)]->setText(QString::number(graph4Value, 'f', 2));
 
 
-//              Tickerlist.append(0);
-//              m_TickerList.insert(strat,Tickerlist);
+//        double graph5Value = plots[ui->comboBox->findText(strat)]->graph(5)->dataMainValue(plots[ui->comboBox->findText(strat)]->graph(5)->dataCount()-1);
+//        mtagList5[ui->comboBox->findText(strat)]->updatePosition(graph5Value);
+//        mtagList5[ui->comboBox->findText(strat)]->setText(QString::number(graph5Value, 'f', 2));
 
-              timerlist.append(timer);
-               m_timerList.insert(strat,timerlist);
+        plots[ui->comboBox->currentIndex()]->show();
+        if(strat==ui->comboBox->currentText())
+        {
+            qDebug()<<m_timerList[ui->comboBox->currentText()].last();
+        }
+        plots[ui->comboBox->findText(strat)]->xAxis->setTicker(dateTicker);
 
-
-          }
-
-//          qDebug()<<"downlist"<<downlist;
-//          qDebug()<<"stopup"<<stop_uplist;
-//          qDebug()<<timerlist;
-//          qDebug()<<Tickerlist;
-
-//             dateTicker
-//    textTicker->setSubTickCount(10);
-////    textTicker
-//    textTicker->addTick(0, timerlist[0]);
-//    for(int i=1;i<timerlist.count();i++)
-//    {
-//        textTicker->addTick(i, timerlist[i]);
-//    }
-    connect(plots[ui->comboBox->findText(strat)]->xAxis, SIGNAL(rangeChanged(QCPRange)), plots[ui->comboBox->findText(strat)]->xAxis, SLOT(setRange(QCPRange)));
-    connect(plots[ui->comboBox->findText(strat)]->yAxis, SIGNAL(rangeChanged(QCPRange)), plots[ui->comboBox->findText(strat)]->yAxis, SLOT(setRange(QCPRange)));
-
-plots[ui->comboBox->findText(strat)]->yAxis->setRange(min-10,max+10);
-    plots[ui->comboBox->findText(strat)]->xAxis->setTicker(dateTicker);
-
-plots[ui->comboBox->findText(strat)]->xAxis->setRange(timerlist.first().toTime_t(),timerlist.last().toTime_t());
-    plots[ui->comboBox->findText(strat)]->xAxis->setLabel("time");
-    plots[ui->comboBox->findText(strat)]->setInteractions(QCP::iRangeDrag|QCP::iRangeZoom| QCP::iSelectAxes |
-                                      QCP::iSelectLegend | QCP::iSelectPlottables);
+        plots[ui->comboBox->findText(strat)]->xAxis->setLabel("time");
+        plots[ui->comboBox->findText(strat)]->setInteractions(QCP::iRangeDrag|QCP::iRangeZoom| QCP::iSelectAxes |
+                                                              QCP::iSelectLegend | QCP::iSelectPlottables);
 
 
-     plots[ui->comboBox->findText(strat)]->graph(0)->setPen(QPen(Qt::blue));
-                //设置右上角图形标注名称
-     plots[ui->comboBox->findText(strat)]->graph(0)->setName("down");
+        plots[ui->comboBox->findText(strat)]->graph(0)->setPen(QPen(Qt::blue));
+        //设置右上角图形标注名称
+        plots[ui->comboBox->findText(strat)]->graph(0)->setName("down");
 
-     plots[ui->comboBox->findText(strat)]->graph(0)->addData(timer.toTime_t(),down);
+        plots[ui->comboBox->findText(strat)]->graph(0)->addData(timer.toSecsSinceEpoch(),down);
 
-     plots[ui->comboBox->findText(strat)]->graph(1)->setPen(QPen(Qt::yellow));
-                //设置右上角图形标注名称
-     plots[ui->comboBox->findText(strat)]->graph(1)->setName("stop_down");
+        plots[ui->comboBox->findText(strat)]->graph(1)->setPen(QPen(Qt::yellow));
+        //设置右上角图形标注名称
+        plots[ui->comboBox->findText(strat)]->graph(1)->setName("stop_down");
 
-     plots[ui->comboBox->findText(strat)]->graph(1)->addData(timer.toTime_t(),stop_down);
-
-
-     plots[ui->comboBox->findText(strat)]->graph(2)->setPen(QPen(Qt::gray));
-                //设置右上角图形标注名称
-     plots[ui->comboBox->findText(strat)]->graph(2)->setName("up");
-
-     plots[ui->comboBox->findText(strat)]->graph(2)->addData(timer.toTime_t(),up);
+        plots[ui->comboBox->findText(strat)]->graph(1)->addData(timer.toSecsSinceEpoch(),stop_down);
 
 
-     plots[ui->comboBox->findText(strat)]->graph(3)->setPen(QPen(Qt::red));
-                //设置右上角图形标注名称
-     plots[ui->comboBox->findText(strat)]->graph(3)->setName("stop_up");
+        plots[ui->comboBox->findText(strat)]->graph(2)->setPen(QPen(Qt::gray));
+        //设置右上角图形标注名称
+        plots[ui->comboBox->findText(strat)]->graph(2)->setName("up");
 
-     plots[ui->comboBox->findText(strat)]->graph(3)->addData(timer.toTime_t(),stop_up);
+        plots[ui->comboBox->findText(strat)]->graph(2)->addData(timer.toSecsSinceEpoch(),up);
 
 
-     plots[ui->comboBox->findText(strat)]->graph(4)->setPen(QPen(Qt::green));
-                //设置右上角图形标注名称
-     plots[ui->comboBox->findText(strat)]->graph(4)->setName("mid");
+        plots[ui->comboBox->findText(strat)]->graph(3)->setPen(QPen(Qt::red));
+        //设置右上角图形标注名称
+        plots[ui->comboBox->findText(strat)]->graph(3)->setName("stop_up");
 
-     plots[ui->comboBox->findText(strat)]->graph(4)->addData(timer.toTime_t(),mid);
+        plots[ui->comboBox->findText(strat)]->graph(3)->addData(timer.toSecsSinceEpoch(),stop_up);
 
-}
+
+        plots[ui->comboBox->findText(strat)]->graph(4)->setPen(QPen(Qt::green));
+        //设置右上角图形标注名称
+        plots[ui->comboBox->findText(strat)]->graph(4)->setName("mid");
+
+        plots[ui->comboBox->findText(strat)]->graph(4)->addData(timer.toSecsSinceEpoch(),mid);
+
+        plots[ui->comboBox->findText(strat)]->graph(5)->setPen(QPen(Qt::cyan));
+        //设置右上角图形标注名称
+        plots[ui->comboBox->findText(strat)]->graph(5)->setName("mean");
+
+        plots[ui->comboBox->findText(strat)]->graph(5)->addData(timer.toSecsSinceEpoch(),mean);
+        if(zoom)
+        {
+//            plots[ui->comboBox->findText(strat)]->graph(0)->rescaleValueAxis(false);
+//            plots[ui->comboBox->findText(strat)]->graph(1)->rescaleValueAxis(false);
+//            plots[ui->comboBox->findText(strat)]->graph(2)->rescaleValueAxis(false);
+//            plots[ui->comboBox->findText(strat)]->graph(3)->rescaleValueAxis(false);
+//            plots[ui->comboBox->findText(strat)]->graph(4)->rescaleValueAxis(false);
+//            plots[ui->comboBox->findText(strat)]->graph(5)->rescaleValueAxis(false);
+            plots[ui->comboBox->findText(strat)]->replot();
+        }else
+        {
+//            plots[ui->comboBox->findText(strat)]->graph(0)->rescaleValueAxis(true);
+//            plots[ui->comboBox->findText(strat)]->graph(1)->rescaleValueAxis(true);
+//            plots[ui->comboBox->findText(strat)]->graph(2)->rescaleValueAxis(true);
+//            plots[ui->comboBox->findText(strat)]->graph(3)->rescaleValueAxis(true);
+//            plots[ui->comboBox->findText(strat)]->graph(4)->rescaleValueAxis(true);
+//            plots[ui->comboBox->findText(strat)]->graph(5)->rescaleValueAxis(true);
+            if((max-min)<10){
+                plots[ui->comboBox->findText(strat)]->yAxis->setRange(min-1,max+1);
+            }else
+            {
+                plots[ui->comboBox->findText(strat)]->yAxis->setRange(min-10,max+10);
+            }
+
+            plots[ui->comboBox->findText(strat)]->xAxis->setRange(timerlist.last().toSecsSinceEpoch(), 1000, Qt::AlignRight);
+            plots[ui->comboBox->findText(strat)]->replot();
+        }
+
+    }
 }
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
@@ -357,43 +343,142 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 void MainWindow::sendData(QString strat,QString modifyType,QString modify)
 {
 
-
-    sentthread->terminate();
-//    recv::instance().quit();
-     sentthread->wait();
-//      recv::instance().deleteLater();
-    sentmq->setStrat(strat);
-    sentmq->setModifyType(modifyType);
-    sentmq->setModify(modify);
+    sentmq->run(strat,modifyType,modify);
     qDebug()<<strat<<modifyType<<modify;
-    sentthread->start();
 
 }
 
 void MainWindow::on_pushButton_clicked()
 {
-
-    if((ui->comboBox_2->currentText()!="")&&(ui->lineEdit->text()!="")&&(ui->lineEdit->text()!=NULL)&&ui->checkBox->isChecked())
+    switch( QMessageBox::information( this, tr("sent tip"), tr("Do you really want to sent?"), tr("Yes"), tr("No"), 0, 1 ) )
     {
-        sendData(ui->comboBox->currentText(),ui->comboBox_2->currentText(),ui->lineEdit->text());
+    case 0:
 
+        if((ui->comboBox_2->currentText()!="")&&(ui->lineEdit->text()!="")&&(ui->lineEdit->text()!=NULL)&&ui->checkBox->isChecked())
+        {
+            sendData(ui->comboBox->currentText(),ui->comboBox_2->currentText(),ui->lineEdit->text());
+
+        }
+    ui->checkBox->setChecked(false);
+        break;
+    case 1:
+    default:
+//        ui->checkBox->setChecked(false);
+        break;
     }
+
 
 
 }
 
 void MainWindow::on_comboBox_activated(int index)
 {
-           for(int i=0;i<plots.count();i++)
-           {
-               plots[i]->hide();
-           }
-           plots[index]->show();
-}
-void MainWindow::mousePressEvent(QMouseEvent *event)
- {
-    if ((QApplication::keyboardModifiers() == Qt::ControlModifier) && (event->button() == Qt::LeftButton))
+    for(int i=0;i<plots.count();i++)
     {
-        QMessageBox::aboutQt(NULL, "aboutQt");
+        plots[i]->hide();
     }
+    plots[index]->show();
+}
+
+void MainWindow::mouseWheel(QWheelEvent * event)
+{
+    zoom=true;
+
+    if((QApplication::keyboardModifiers() == Qt::ControlModifier) ){
+
+        plots[ui->comboBox->currentIndex()]->axisRect()->setRangeZoomFactor(1,2.2);
+
+    }else{
+//        plots[ui->comboBox->currentIndex()]->graph(0)
+//        plots[ui->comboBox->currentIndex()]->graph(1)->rescaleValueAxis(true);
+//        plots[ui->comboBox->currentIndex()]->graph(2)->rescaleValueAxis(true);
+//        plots[ui->comboBox->currentIndex()]->graph(3)->rescaleValueAxis(true);
+//        plots[ui->comboBox->currentIndex()]->graph(4)->rescaleValueAxis(true);
+//        plots[ui->comboBox->currentIndex()]->graph(5)->rescaleValueAxis(true);
+        plots[ui->comboBox->currentIndex()]->axisRect()->setRangeZoomFactor(2,1);
+
+    }
+}
+ void MainWindow::mouseMove(QMouseEvent* e)
+ {
+double pos = plots[ui->comboBox->currentIndex()]->xAxis->pixelToCoord(e->pos().x());
+
+if(ui->comboBox->count()>1)
+     {
+   double x=pos;
+   QString xlabel=QDateTime::fromSecsSinceEpoch(x).toString("hh:mm:ss");
+     int index=m_timerList.value(ui->comboBox->currentText()).indexOf(QDateTime::fromSecsSinceEpoch(x));
+   qDebug()<<QDateTime::fromSecsSinceEpoch(x);
+if(index>=0)
+{
+    double graph0Value = plots[ui->comboBox->currentIndex()]->graph(0)->dataMainValue(index);
+    double graph1Value = plots[ui->comboBox->currentIndex()]->graph(1)->dataMainValue(index);
+    double graph2Value = plots[ui->comboBox->currentIndex()]->graph(2)->dataMainValue(index);
+    double graph3Value = plots[ui->comboBox->currentIndex()]->graph(3)->dataMainValue(index);
+    double graph4Value = plots[ui->comboBox->currentIndex()]->graph(4)->dataMainValue(index);
+    double graph5Value = plots[ui->comboBox->currentIndex()]->graph(5)->dataMainValue(index);
+
+    mytracerList0[ui->comboBox->currentIndex()]->updatePosition(x,graph0Value);
+     mytracerList1[ui->comboBox->currentIndex()]->updatePosition(x,graph1Value);
+      mytracerList2[ui->comboBox->currentIndex()]->updatePosition(x,graph2Value);
+       mytracerList3[ui->comboBox->currentIndex()]->updatePosition(x,graph3Value);
+        mytracerList4[ui->comboBox->currentIndex()]->updatePosition(x,graph4Value);
+         mytracerList5[ui->comboBox->currentIndex()]->updatePosition(x,graph5Value);
+ mytracerList0[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph0Value)+")");
+ mytracerList1[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph1Value)+")");
+ mytracerList2[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph2Value)+")");
+ mytracerList3[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph3Value)+")");
+ mytracerList4[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph4Value)+")");
+ mytracerList5[ui->comboBox->currentIndex()]->setText("("+xlabel+","+QString::number(graph5Value)+")");
+
+}
+
+
+     }
+
+
+ }
+void MainWindow::mouseDoubleClick(QMouseEvent*)
+
+{
+    zoom=false;
+    for (int i=0;i<plots.count();i++)
+    {
+        plots[i]->xAxis->setRange(m_timerList.value(ui->comboBox->itemText(i)).last().toSecsSinceEpoch(), 1000, Qt::AlignRight);
+
+    }
+
+}
+void MainWindow::closeEvent( QCloseEvent * event )
+{
+    switch( QMessageBox::information( this, tr("exit tip"), tr("Do you really want exit?"), tr("Yes"), tr("No"), 0, 1 ) )
+    {
+    case 0:
+
+        event->accept();
+        break;
+    case 1:
+    default:
+        event->ignore();
+        break;
+    }
+}
+
+void MainWindow::on_checkBox_clicked(bool checked)
+{
+    if(checked)
+    {
+        switch( QMessageBox::information( this, tr("enabled_mod tip"), tr("Do you really want to choose enabled_mod?"), tr("Yes"), tr("No"), 0, 1 ) )
+        {
+        case 0:
+
+            ui->checkBox->setChecked(true);
+            break;
+        case 1:
+        default:
+            ui->checkBox->setChecked(false);
+            break;
+        }
+    }
+
 }
